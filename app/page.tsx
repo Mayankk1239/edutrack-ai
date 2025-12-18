@@ -58,6 +58,9 @@ export default function Home() {
           >
             Documentation
           </a>
+          <a href="/attendance" className="text-blue-600 underline">
+             Attendance →
+          </a>
         </div>
       </main>
     </div>
