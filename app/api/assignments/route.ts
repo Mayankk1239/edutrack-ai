@@ -1,22 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 
-// GET all
+// GET all assignments
 export async function GET() {
   try {
-    const assignments = await prisma.assignment.findMany({
-      orderBy: { createdAt: "desc" }
+    const data = await prisma.assignment.findMany({
+      orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(assignments);
-
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("GET ERROR:", error);
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }
 
-// POST new
+// POST new assignment
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -26,11 +25,10 @@ export async function POST(req: NextRequest) {
         title: body.title,
         description: body.description,
         dueDate: new Date(body.dueDate),
-      }
+      },
     });
 
     return NextResponse.json(created, { status: 201 });
-
   } catch (error) {
     console.error("POST ERROR:", error);
     return NextResponse.json({ error: "Create failed" }, { status: 500 });

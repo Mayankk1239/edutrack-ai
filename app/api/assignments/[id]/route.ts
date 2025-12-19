@@ -1,38 +1,33 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
-import type { NextRequest } from "next/server";
 
-// DELETE
+// DELETE assignment
 export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
-
-    await prisma.assignment.delete({
-      where: { id },
+    const deleted = await prisma.assignment.delete({
+      where: { id: params.id },
     });
 
-    return NextResponse.json({ message: "Deleted" }, { status: 200 });
-
+    return NextResponse.json(deleted, { status: 200 });
   } catch (error) {
     console.error("DELETE ERROR:", error);
     return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 }
 
-// PUT
+// UPDATE assignment
 export async function PUT(
-  req: NextRequest,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
-    const body = await req.json();
+    const body = await request.json();
 
     const updated = await prisma.assignment.update({
-      where: { id },
+      where: { id: params.id },
       data: {
         title: body.title,
         description: body.description,
@@ -41,7 +36,6 @@ export async function PUT(
     });
 
     return NextResponse.json(updated, { status: 200 });
-
   } catch (error) {
     console.error("UPDATE ERROR:", error);
     return NextResponse.json({ error: "Update failed" }, { status: 500 });
