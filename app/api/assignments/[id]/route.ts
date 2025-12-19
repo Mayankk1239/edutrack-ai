@@ -1,28 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
-import jwt from "jsonwebtoken";
+import type { NextRequest } from "next/server";
 
-// ========================================
-// DELETE — remove assignment (TEACHER ONLY)
-// ========================================
+// DELETE
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    // 🔐 TOKEN CHECK
-    const auth = req.headers.get("authorization");
-    if (!auth) return NextResponse.json({ error: "Auth required" }, { status: 401 });
-
-    const token = auth.split(" ")[1];
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-
-    if (decoded.role !== "teacher") {
-      return NextResponse.json({ error: "Only teachers can delete" }, { status: 403 });
-    }
+    const { id } = context.params;
 
     await prisma.assignment.delete({
-      where: { id: Number(params.id) },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Deleted" }, { status: 200 });
@@ -33,34 +22,21 @@ export async function DELETE(
   }
 }
 
-// ========================================
-// PUT — update assignment (TEACHER ONLY)
-// ========================================
+// PUT
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    // 🔐 TOKEN CHECK
-    const auth = req.headers.get("authorization");
-    if (!auth) return NextResponse.json({ error: "Auth required" }, { status: 401 });
-
-    const token = auth.split(" ")[1];
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-
-    if (decoded.role !== "teacher") {
-      return NextResponse.json({ error: "Only teachers can edit" }, { status: 403 });
-    }
-
+    const { id } = context.params;
     const body = await req.json();
-    const { title, description, dueDate } = body;
 
     const updated = await prisma.assignment.update({
-      where: { id: Number(params.id) },
+      where: { id },
       data: {
-        title,
-        description,
-        dueDate: new Date(dueDate),
+        title: body.title,
+        description: body.description,
+        dueDate: new Date(body.dueDate),
       },
     });
 
